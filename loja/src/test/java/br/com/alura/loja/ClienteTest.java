@@ -14,8 +14,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.thoughtworks.xstream.XStream;
-
 import br.com.alura.loja.modelo.Carrinho;
 import br.com.alura.loja.modelo.Produto;
 import junit.framework.Assert;
@@ -43,8 +41,8 @@ public class ClienteTest {
 	@Test
 	public void testaQueBuscarUmCarrinhoTrazOCarrinhoEsperado() {
 		WebTarget target = client.target("http://localhost:8080");
-		String conteudo = target.path("/carrinhos/1").request().get(String.class);
-		Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo);
+		Carrinho carrinho = target.path("/carrinhos/1").request().get(Carrinho.class);
+		//Carrinho carrinho = (Carrinho) new XStream().fromXML(conteudo); XStream
 		Assert.assertEquals("Rua Vergueiro 3185, 8 andar", carrinho.getRua());
 	}
 	
@@ -55,13 +53,13 @@ public class ClienteTest {
 		carrinho.adiciona(new Produto(314L, "Tablet", 999, 1));
 		carrinho.setRua("Rua Vergueiro");
 		carrinho.setCidade("São Paulo");
-		String xml = carrinho.toXML();
-		Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
+		//String xml = carrinho.toXML();
+		Entity<Carrinho> entity = Entity.entity(carrinho, MediaType.APPLICATION_XML);
 		Response response = target.path("/carrinhos").request().post(entity);
 		Assert.assertEquals(201, response.getStatus());
 		String location = response.getHeaderString("Location");
-		String conteudo = client.target(location).request().get(String.class);
-		Assert.assertTrue(conteudo.contains("Tablet"));
+		Carrinho carrinhoEncontrado = client.target(location).request().get(Carrinho.class);
+		Assert.assertTrue(carrinhoEncontrado.getProdutos().get(0).getNome().contains("Tablet"));
 	}
 
 }

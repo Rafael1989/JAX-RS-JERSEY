@@ -37,8 +37,8 @@ public class ProjetoTest {
 	public void testaQueAConexaoComOServidorFunciona() {
 		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target("http://localhost:8080/");
-		String response = target.path("projetos/1").request().get(String.class);
-		Projeto projeto = (Projeto) new XStream().fromXML(response);
+		Projeto projeto = target.path("projetos/1").request().get(Projeto.class);
+		//Projeto projeto = (Projeto) new XStream().fromXML(response); XStream
 		Assert.assertEquals("Minha loja", projeto.getNome());
 	}
 	
@@ -47,13 +47,13 @@ public class ProjetoTest {
 		Client client = ClientBuilder.newClient();
 		WebTarget target = client.target("http://localhost:8080");
 		Projeto projeto = new Projeto(1L,"Previdência",2018);
-		String xml = projeto.toXml();
-		Entity<String> entity = Entity.entity(xml, MediaType.APPLICATION_XML);
+		//String xml = projeto.toXml();
+		Entity<Projeto> entity = Entity.entity(projeto, MediaType.APPLICATION_XML);
 		Response response = target.path("/projetos").request().post(entity);
 		Assert.assertEquals(201, response.getStatus());
 		String location = response.getHeaderString("Location");
-		String conteudo = client.target(location).request().get(String.class);
-		Assert.assertTrue(conteudo.contains("Previdência"));
+		Projeto projetoEncontrado = client.target(location).request().get(Projeto.class);
+		Assert.assertTrue(projetoEncontrado.getNome().contains("Previdência"));
 	}
 
 
